@@ -5,11 +5,11 @@
 #include <stdint.h>
 
 #ifndef DOOMGENERIC_RESX
-#define DOOMGENERIC_RESX 640
+#define DOOMGENERIC_RESX 400
 #endif  // DOOMGENERIC_RESX
 
 #ifndef DOOMGENERIC_RESY
-#define DOOMGENERIC_RESY 400
+#define DOOMGENERIC_RESY 300
 #endif  // DOOMGENERIC_RESY
 
 
@@ -38,4 +38,4 @@ uint32_t DG_GetTicksMs();
 int DG_GetKey(int* pressed, unsigned char* key);
 void DG_SetWindowTitle(const char * title);
 
-#endif //DOOM_GENERIC
+#endif //DOOM_GENERICC
