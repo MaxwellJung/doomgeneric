@@ -41,12 +41,20 @@
 #include "deh_str.h"
 
 #include "i_swap.h"
+extern "C" {
 #include "i_system.h"
+}
 #include "i_video.h"
+extern "C" {
 #include "m_misc.h"
+}
 #include "v_video.h"
 #include "w_wad.h"
+extern "C" {
 #include "z_zone.h"
+}
+
+#include "SD.h"
 
 //
 // Create a directory
@@ -65,13 +73,16 @@ void M_MakeDirectory(char *path)
 
 boolean M_FileExists(char *filename)
 {
-    FILE *fstream;
+    // FILE *fstream;
+    File fstream;
 
-    fstream = fopen(filename, "r");
+    // fstream = fopen(filename, "r");
+    fstream = SD.open(filename, FILE_READ);
 
     if (fstream != NULL)
     {
-        fclose(fstream);
+        // fclose(fstream);
+        fstream.close();
         return true;
     }
     else
@@ -148,7 +159,7 @@ int M_ReadFile(char *name, byte **buffer)
 
     length = M_FileLength(handle);
     
-    buf = Z_Malloc (length, PU_STATIC, NULL);
+    buf = (byte*) Z_Malloc(length, PU_STATIC, NULL);
     count = fread(buf, 1, length, handle);
     fclose (handle);
 	
@@ -335,7 +346,7 @@ char *M_StringReplace(const char *haystack, const char *needle,
 
     // Construct new string.
 
-    result = malloc(result_len);
+    result = (char*) malloc(result_len);
     if (result == NULL)
     {
         I_Error("M_StringReplace: Failed to allocate new string");
@@ -445,7 +456,7 @@ char *M_StringJoin(const char *s, ...)
     }
     va_end(args);
 
-    result = malloc(result_len);
+    result = (char*) malloc(result_len);
 
     if (result == NULL)
     {
