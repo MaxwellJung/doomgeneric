@@ -17,15 +17,20 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h> // for malloc() and free()
 
+extern "C" {
 #include "m_misc.h"
 #include "w_file.h"
 #include "z_zone.h"
+}
+
+#include "SD.h"
 
 typedef struct
 {
     wad_file_t wad;
-    FILE *fstream;
+    File *fstream;
 } stdc_wad_file_t;
 
 extern wad_file_class_t stdc_wad_file;
@@ -33,9 +38,11 @@ extern wad_file_class_t stdc_wad_file;
 static wad_file_t *W_StdC_OpenFile(char *path)
 {
     stdc_wad_file_t *result;
-    FILE *fstream;
+    // FILE *fstream;
+    File *fstream = (File*) malloc(sizeof(File));
 
-    fstream = fopen(path, "rb");
+    // fstream = fopen(path, "rb");
+    *fstream = SD.open(path, FILE_READ);
 
     if (fstream == NULL)
     {
@@ -44,10 +51,10 @@ static wad_file_t *W_StdC_OpenFile(char *path)
 
     // Create a new stdc_wad_file_t to hold the file handle.
 
-    result = Z_Malloc(sizeof(stdc_wad_file_t), PU_STATIC, 0);
+    result = (stdc_wad_file_t*) Z_Malloc(sizeof(stdc_wad_file_t), PU_STATIC, 0);
     result->wad.file_class = &stdc_wad_file;
     result->wad.mapped = NULL;
-    result->wad.length = M_FileLength(fstream);
+    result->wad.length = fstream->size();
     result->fstream = fstream;
 
     return &result->wad;
@@ -59,7 +66,9 @@ static void W_StdC_CloseFile(wad_file_t *wad)
 
     stdc_wad = (stdc_wad_file_t *) wad;
 
-    fclose(stdc_wad->fstream);
+    // fclose(stdc_wad->fstream);
+    stdc_wad->fstream->close();
+    free(stdc_wad->fstream);
     Z_Free(stdc_wad);
 }
 
@@ -75,13 +84,12 @@ size_t W_StdC_Read(wad_file_t *wad, unsigned int offset,
     stdc_wad = (stdc_wad_file_t *) wad;
 
     // Jump to the specified position in the file.
-
-    fseek(stdc_wad->fstream, offset, SEEK_SET);
+    // fseek(stdc_wad->fstream, offset, SEEK_SET);
+    stdc_wad->fstream->seek(offset);
 
     // Read into the buffer.
-
-    result = fread(buffer, 1, buffer_len, stdc_wad->fstream);
-
+    // result = fread(buffer, 1, buffer_len, stdc_wad->fstream);
+    result = stdc_wad->fstream->read(buffer, buffer_len);
     return result;
 }
 
